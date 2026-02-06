@@ -1,0 +1,29 @@
+import type { RootRoute } from "@tanstack/react-router";
+import { createRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+
+import { socket } from "@/lib/sockets";
+
+export const IndexPage = () => {
+  useEffect(() => {
+    socket.connect();
+    return () => void socket.disconnect();
+  }, []);
+
+  return (
+    <main className="h-screen w-screen overflow-hidden bg-[#080929]">
+      HELLO WORLD!
+    </main>
+  );
+};
+
+const IndexRoute = <A, B, C, D, E, F extends Record<string, never>, G, H>(
+  parentRoute: RootRoute<A, B, C, D, E, F, G, H>
+) =>
+  createRoute({
+    path: "/",
+    component: IndexPage,
+    getParentRoute: () => parentRoute,
+  });
+
+export default IndexRoute;
