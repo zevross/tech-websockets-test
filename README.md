@@ -6,12 +6,12 @@ A full-stack demo combining a FastAPI backend with a React/Vite frontend, featur
 
 ## Prerequisites
 
-- Node.js ≥ 18.x  
-- pnpm  
-- Python ≥ 3.10  
-- pip install uv (`pip install uv`)  
-- sqlite3 (if using SQLite) **or** Docker & Docker Compose (if using Postgres)  
-- Git  
+- Node.js ≥ 18.x
+- pnpm
+- Python ≥ 3.10
+- pip install uv (`pip install uv`)
+- sqlite3 (if using SQLite) **or** Docker & Docker Compose (if using Postgres)
+- Git
 
 ---
 
@@ -22,34 +22,29 @@ A full-stack demo combining a FastAPI backend with a React/Vite frontend, featur
 Copy `backend/.env.template` → `backend/.env` and fill in:
 
 ```dotenv
-DATABASE_URL=                     # e.g. sqlite+aiosqlite:///data/main.db
 CACHE_HOST=                       # Redis host
 CACHE_PORT=6379
-CACHE_PASSWORD=
-CACHE_ENABLED=true
-CACHE_EXPIRATION=60
+CACHE_EXPIRATION=3600
+CACHE_ENABLED=false
 
-DISABLE_AUTH=false
-USE_LEGACY_AUTH=false
-LEGACY_AUTH_KEY=<your-secret>
-PROTECT_METRICS=true
-METRICS_USERNAME=metrics
-METRICS_PASSWORD=<your-pass>
-TOKEN_EXPIRY=3600
+FRONTEND_ORIGIN="http://localhost:5173"
+WEBSOCKET_ORIGIN="ws://localhost:5173"
 
-FRONTEND_ORIGIN=http://localhost:5173
-WEBSOCKET_ORIGIN=ws://localhost:5173
-PORT=8000
-INTERVAL=30                       # “tick” interval (seconds)
-```
+DATABASE_URL="sqlite+aiosqlite:///data/main.db"
+BASE_PATH="/zrsa-ove-demo"
 
-### Frontend
+PORT=80
 
-Copy `frontend/.env.template` → `frontend/.env` and adjust:
+DISABLE_AUTH="true"
+USE_LEGACY_AUTH=true
+LEGACY_AUTH_KEY=
+METRICS_USERNAME=
+METRICS_PASSWORD=
 
-```dotenv
-VITE_BACKEND=http://localhost:8000
-VITE_ENABLE_DEBUG=false           # set to true to enable in-browser debug panel
+VITE_BACKEND="http://localhost:8000/zrsa-ove-demo"
+VITE_SOCKET_SERVER="http://localhost:8000"
+VITE_SOCKET_PATH="/zrsa-ove-demo/ws/socket.io"
+VITE_ENABLE_DEBUG=true
 ```
 
 ---
@@ -102,18 +97,18 @@ Socket.IO mounted at `/ws/socket.io` under namespace `/v1`. Supply:
 Client example (TS):
 
 ```ts
-import {createSocketClient} from "@/api/sockets-v1";
+import { createSocketClient } from "@/api/sockets-v1";
 
 const client = createSocketClient(env.VITE_BACKEND, {
   path: "/ws/socket.io",
   withCredentials: true,
-  query: {room: "myroom"},
+  query: { room: "myroom" },
 });
 
 client.connect();
 client.onConnect(() => console.log("connected"));
 client.emitStart();
-client.onTick(payload => console.log("tick", payload));
+client.onTick((payload) => console.log("tick", payload));
 client.emitStop();
 client.emitReset();
 ```
@@ -121,7 +116,7 @@ client.emitReset();
 Example events:
 
 | Event     | Direction      | Payload         | Description                          |
-|-----------|----------------|-----------------|--------------------------------------|
+| --------- | -------------- | --------------- | ------------------------------------ |
 | get_state | client→server  | _none_          | Ack: returns `{ status, timestamp }` |
 | start     | client→server  | _none_          | Begin periodic “tick”                |
 | stop      | client→server  | _none_          | Stop ticking                         |
@@ -133,6 +128,7 @@ Example events:
 Each **physical Data Observatory** maps to a unique `room`. All clients — whether controllers (which emit commands) or views (read-only pages) — connect to the same room and share state in real time.
 
 1. **Controllers** connect:
+
    ```ts
    import { createSocketClient } from "@/api/sockets-v1";
    const ctrl = createSocketClient(env.VITE_BACKEND, {
@@ -157,8 +153,8 @@ Each **physical Data Observatory** maps to a unique `room`. All clients — whet
      query: { room: "data-observatory" },
    });
    view.connect();
-   view.emitGetState().then(state => renderState(state));
-   view.onTick(payload => renderTick(payload));
+   view.emitGetState().then((state) => renderState(state));
+   view.onTick((payload) => renderTick(payload));
    ```
 
 All events are scoped to `"data-observatory"`. When a controller emits `start`, every connected view in that room begins receiving `tick` broadcasts and stays in sync.
@@ -189,9 +185,9 @@ uv run uvicorn app.main:app \
   --reload --host 0.0.0.0 --port $PORT
 ```
 
-- OpenAPI UI: `http://localhost:$PORT/docs`  
-- AsyncAPI UI: `http://localhost:$PORT/public/asyncapi.html`  
-- Metrics: `http://localhost:$PORT/metrics`  
+- OpenAPI UI: `http://localhost:$PORT/docs`
+- AsyncAPI UI: `http://localhost:$PORT/public/asyncapi.html`
+- Metrics: `http://localhost:$PORT/metrics`
 
 ### Run Frontend
 
@@ -208,11 +204,11 @@ Visit `http://localhost:5173`
 
 Press **Ctrl+K** (or ⌘+K) to toggle the debug panel:
 
-- Live Socket.IO events & payloads  
-- HTTP request/response log  
-- Application‐level logs  
-- Inline editing of client state (Zustand)  
-- Toast notifications for errors  
+- Live Socket.IO events & payloads
+- HTTP request/response log
+- Application‐level logs
+- Inline editing of client state (Zustand)
+- Toast notifications for errors
 
 Enable in production via `VITE_ENABLE_DEBUG=true`.
 
@@ -226,8 +222,8 @@ Enable in production via `VITE_ENABLE_DEBUG=true`.
 docker-compose up -d
 ```
 
-- `backend/.env.production` → mounted as `/.env`  
-- `backend/data` → persisted DB & Redis volume  
+- `backend/.env.production` → mounted as `/.env`
+- `backend/data` → persisted DB & Redis volume
 
 ### Manual build & run
 
@@ -245,26 +241,24 @@ docker run -d \
 
 ## Project Layout
 
-
 ├── backend/
-│   ├── app/                FastAPI app (auth, cache, sockets, API, DB)
-│   ├── data/               SQLite file or Postgres data
-│   ├── migrations/         Alembic configs & versions
-│   ├── scripts/            Codegen: OpenAPI, AsyncAPI, JSON-Schemas
-│   ├── public/             Static docs (asyncapi.html, docs.html)
-│   ├── .env(.production)   Environment variables
-│   └── main.py             Entrypoint
+│ ├── app/ FastAPI app (auth, cache, sockets, API, DB)
+│ ├── data/ SQLite file or Postgres data
+│ ├── migrations/ Alembic configs & versions
+│ ├── scripts/ Codegen: OpenAPI, AsyncAPI, JSON-Schemas
+│ ├── public/ Static docs (asyncapi.html, docs.html)
+│ ├── .env(.production) Environment variables
+│ └── main.py Entrypoint
 ├── frontend/
-│   ├── src/                React code, hooks, styles, Debug overlay
-│   ├── api/                Generated REST hooks & socket clients
-│   ├── cli/codegen/        TS generators for schemas, API & sockets
-│   ├── public/             Static assets (favicon, robots.txt, manifest)
-│   ├── package.json        Scripts & dependencies
-│   └── vite.config.ts
+│ ├── src/ React code, hooks, styles, Debug overlay
+│ ├── api/ Generated REST hooks & socket clients
+│ ├── cli/codegen/ TS generators for schemas, API & sockets
+│ ├── public/ Static assets (favicon, robots.txt, manifest)
+│ ├── package.json Scripts & dependencies
+│ └── vite.config.ts
 ├── docker-compose.yml
 ├── Dockerfile
 └── README.md
-
 
 ---
 
@@ -272,15 +266,15 @@ docker run -d \
 
 From the `frontend/` directory:
 
-- `pnpm run dev`       — start HMR/Vite server  
-- `pnpm run build`     — compile production assets  
-- `pnpm run serve`     — preview production build  
-- `pnpm run test`      — run Vitest suite  
-- `pnpm run sync`      — regenerate TS schemas, API & sockets  
-- `pnpm run check`     — Prettier & ESLint fixes  
-- `pnpm run lint`      — ESLint only  
-- `pnpm run format`    — Prettier only  
-- `pnpm run clean`     — remove `dist/`  
+- `pnpm run dev` — start HMR/Vite server
+- `pnpm run build` — compile production assets
+- `pnpm run serve` — preview production build
+- `pnpm run test` — run Vitest suite
+- `pnpm run sync` — regenerate TS schemas, API & sockets
+- `pnpm run check` — Prettier & ESLint fixes
+- `pnpm run lint` — ESLint only
+- `pnpm run format` — Prettier only
+- `pnpm run clean` — remove `dist/`
 
 ---
 
@@ -288,19 +282,19 @@ From the `frontend/` directory:
 
 From the `backend/` directory:
 
-- `uv sync --locked`                             — install dependencies  
+- `uv sync --locked` — install dependencies
 - `uv run alembic revision --autogenerate -m "..."`
-- `uv run alembic upgrade head`                  — apply migrations  
-- `uv run scripts/schemas.py`                    — generate OpenAPI/AsyncAPI/JSON-Schemas  
+- `uv run alembic upgrade head` — apply migrations
+- `uv run scripts/schemas.py` — generate OpenAPI/AsyncAPI/JSON-Schemas
 
 ---
 
 ## Tips & Next Steps
 
-- Keep `.env*` files out of version control.  
-- After any schema/API change, run codegen then frontend sync.  
-- Adjust cache, rate-limit and auth policies in `app/core/config.py`.  
-- Use React-Query DevTools for inspecting REST queries.  
-- Customize UI primitives via the `components/` folder or `shadcn` presets.  
+- Keep `.env*` files out of version control.
+- After any schema/API change, run codegen then frontend sync.
+- Adjust cache, rate-limit and auth policies in `app/core/config.py`.
+- Use React-Query DevTools for inspecting REST queries.
+- Customize UI primitives via the `components/` folder or `shadcn` presets.
 
 ---
