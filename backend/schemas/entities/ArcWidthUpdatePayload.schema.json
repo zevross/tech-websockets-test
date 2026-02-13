@@ -1,0 +1,11 @@
+{
+  "properties": {
+    "arc_width": {
+      "title": "Arc Width",
+      "type": "number"
+    }
+  },
+  "required": ["arc_width"],
+  "title": "ArcWidthUpdatePayload",
+  "type": "object"
+}

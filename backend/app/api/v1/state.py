@@ -29,6 +29,8 @@ class State:
     status: str = "stopped"
     tick: int = 0
     timestamp: datetime = None
+    text: str = ""
+    arc_width: float = 1.0
 
     async def on_tick(self, emitter):
         self.tick += 1
@@ -39,11 +41,15 @@ class State:
         self.interval = None
         self.status = "stopped"
         self.timestamp = datetime.now(tz=timezone.utc)
+        self.text = ""
+        self.arc_width = 1.0
 
     def to_dict(self):
         return {
             "status": self.status,
             "timestamp": self.timestamp.isoformat(),
+            "text": self.text,
+            "arc_width": self.arc_width,
         }
 
 

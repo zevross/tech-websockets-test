@@ -123,6 +123,40 @@ export class SocketClientV1 {
       }
     });
   }
+
+  /** client → server 'text_update' */
+  public emitTextUpdate(payload: schemas.TextUpdatePayload): void {
+    this.socket.emit("text_update", payload);
+  }
+
+  /** server → client 'text_update' */
+  public onTextUpdate(handler: (payload: schemas.TextUpdatePayload) => void): void {
+    this.socket.on("text_update", (raw: unknown) => {
+      try {
+        handler(schemas.TextUpdatePayload.parse(raw));
+      } catch (e) {
+        console.error("Invalid payload for text_update", e);
+      }
+    });
+  }
+
+  /** client → server 'arc_width_update' */
+  public emitArcWidthUpdate(payload: schemas.ArcWidthUpdatePayload): void {
+    this.socket.emit("arc_width_update", payload);
+  }
+
+  /** server → client 'arc_width_update' */
+  public onArcWidthUpdate(
+    handler: (payload: schemas.ArcWidthUpdatePayload) => void
+  ): void {
+    this.socket.on("arc_width_update", (raw: unknown) => {
+      try {
+        handler(schemas.ArcWidthUpdatePayload.parse(raw));
+      } catch (e) {
+        console.error("Invalid payload for arc_width_update", e);
+      }
+    });
+  }
 }
 
 export function createSocketClient(

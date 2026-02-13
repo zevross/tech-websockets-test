@@ -44,6 +44,80 @@
         "send": {}
       }
     },
+    "text_update": {
+      "address": "text_update",
+      "messages": {
+        "receive": {
+          "contentType": "application/json",
+          "payload": {
+            "properties": {
+              "text": {
+                "title": "Text",
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "title": "TextUpdatePayload",
+            "type": "object"
+          }
+        },
+        "send": {
+          "contentType": "application/json",
+          "payload": {
+            "properties": {
+              "text": {
+                "title": "Text",
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "title": "TextUpdatePayload",
+            "type": "object"
+          }
+        }
+      }
+    },
+    "arc_width_update": {
+      "address": "arc_width_update",
+      "messages": {
+        "receive": {
+          "contentType": "application/json",
+          "payload": {
+            "properties": {
+              "arc_width": {
+                "title": "Arc Width",
+                "type": "number"
+              }
+            },
+            "required": [
+              "arc_width"
+            ],
+            "title": "ArcWidthUpdatePayload",
+            "type": "object"
+          }
+        },
+        "send": {
+          "contentType": "application/json",
+          "payload": {
+            "properties": {
+              "arc_width": {
+                "title": "Arc Width",
+                "type": "number"
+              }
+            },
+            "required": [
+              "arc_width"
+            ],
+            "title": "ArcWidthUpdatePayload",
+            "type": "object"
+          }
+        }
+      }
+    },
     "tick": {
       "address": "tick",
       "messages": {
@@ -157,6 +231,50 @@
       "messages": [
         {
           "$ref": "#/channels/stop/messages/send"
+        }
+      ]
+    },
+    "text_update.receive": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/text_update"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/text_update/messages/receive"
+        }
+      ]
+    },
+    "text_update.send": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/text_update"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/text_update/messages/send"
+        }
+      ]
+    },
+    "arc_width_update.receive": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/arc_width_update"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/arc_width_update/messages/receive"
+        }
+      ]
+    },
+    "arc_width_update.send": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/arc_width_update"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/arc_width_update/messages/send"
         }
       ]
     },

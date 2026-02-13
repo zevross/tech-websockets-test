@@ -20,6 +20,14 @@ class TickPayload(BaseModel):
     timestamp: str
 
 
+class TextUpdatePayload(BaseModel):
+    text: str
+
+
+class ArcWidthUpdatePayload(BaseModel):
+    arc_width: float
+
+
 class OrmConfig(ConfigDict):
     from_attributes: bool
 

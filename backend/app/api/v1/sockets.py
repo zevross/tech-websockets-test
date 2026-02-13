@@ -35,7 +35,7 @@ class SocketV1Namespace(socketio.AsyncNamespace):
 
     async def _emit_on_tick(self, sid: str):
         state_ = state[self.rooms[sid]]
-        data = schemas.TickPayload(timestamp=datetime.now(tz=timezone.utc))
+        data = schemas.TickPayload(timestamp=datetime.now(tz=timezone.utc).isoformat())
         await self.emit("tick", data.model_dump(), room=self.rooms[sid])
 
     @socket_publish("tick", payload=schemas.TickPayload)
@@ -60,6 +60,28 @@ class SocketV1Namespace(socketio.AsyncNamespace):
     @socket_event("reset", response_event="reset")
     async def on_reset(self, sid: str):
         state[self.rooms[sid]].reset()
+
+    @socket_event(
+        "text_update",
+        payload=schemas.TextUpdatePayload,
+        response=schemas.TextUpdatePayload,
+        response_event="text_update",
+    )
+    async def on_text_update(self, sid: str, data: schemas.TextUpdatePayload):
+        state[self.rooms[sid]].text = data.text
+        return data
+
+    @socket_event(
+        "arc_width_update",
+        payload=schemas.ArcWidthUpdatePayload,
+        response=schemas.ArcWidthUpdatePayload,
+        response_event="arc_width_update",
+    )
+    async def on_arc_width_update(
+        self, sid: str, data: schemas.ArcWidthUpdatePayload
+    ):
+        state[self.rooms[sid]].arc_width = data.arc_width
+        return data
 
 
 def configure_v1_namespace():

@@ -1,18 +1,14 @@
 import type { RootRoute } from "@tanstack/react-router";
 import { createRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
 
-import { socket } from "@/lib/sockets";
+import { ArcLayerDemo } from "@/components/ArcLayerDemo";
+// import { SimpleDemo } from "@/components/SimpleDemo";
 
 export const IndexPage = () => {
-  useEffect(() => {
-    socket.connect();
-    return () => void socket.disconnect();
-  }, []);
-
   return (
     <main className="h-screen w-screen overflow-hidden bg-[#080929]">
-      HELLO WORLD!
+      {/* <SimpleDemo /> */}
+      <ArcLayerDemo />
     </main>
   );
 };
