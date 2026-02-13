@@ -33,7 +33,7 @@ WEBSOCKET_ORIGIN="ws://localhost:5173"
 DATABASE_URL="sqlite+aiosqlite:///data/main.db"
 BASE_PATH="/zrsa-ove-demo"
 
-PORT=80
+PORT=8000
 
 DISABLE_AUTH="true"
 USE_LEGACY_AUTH=true
@@ -182,12 +182,12 @@ pnpm run sync                     # regenerates TS schemas, REST hooks & socket 
 ```bash
 cd backend
 uv run uvicorn app.main:app \
-  --reload --host 0.0.0.0 --port $PORT
+  --reload --host 0.0.0.0 --port ${PORT:-8000}
 ```
 
-- OpenAPI UI: `http://localhost:$PORT/docs`
-- AsyncAPI UI: `http://localhost:$PORT/public/asyncapi.html`
-- Metrics: `http://localhost:$PORT/metrics`
+- OpenAPI UI: `http://localhost:${PORT:-8000}/docs`
+- AsyncAPI UI: `http://localhost:${PORT:-8000}/public/asyncapi.html`
+- Metrics: `http://localhost:${PORT:-8000}/metrics`
 
 ### Run Frontend
 
