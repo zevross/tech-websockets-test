@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "county_id": {
+      "title": "County Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "county_id"
+  ],
+  "title": "SelectCountyPayload",
+  "type": "object"
+}

@@ -30,9 +30,10 @@ class SocketV1Namespace(socketio.AsyncNamespace):
         if len([x for x in self.rooms.values() if x == room]) == 0:
             clear_state(room)
 
-    @socket_event("get_state", response=dict, ack=True, key_builder=lambda: {}, cache_enabled=True)
+    @socket_event("get_state", response=schemas.GetStatePayload, ack=True, key_builder=lambda: {}, cache_enabled=True)
     async def on_get_state(self, sid: str):
-        return state.get(self.rooms.get(sid, "MISSING"), State()).to_dict()
+        raw = state.get(self.rooms.get(sid, "MISSING"), State()).to_dict()
+        return schemas.GetStatePayload(**raw).model_dump()
 
     async def _emit_on_tick(self, sid: str):
         state_ = state[self.rooms[sid]]
@@ -91,10 +92,12 @@ class SocketV1Namespace(socketio.AsyncNamespace):
         response_event="select_county",
     )
     async def on_select_county(self, sid: str, data: schemas.SelectCountyPayload):
-        return schemas.SelectCountyBroadcastPayload(
+        broadcast_data = schemas.SelectCountyBroadcastPayload(
             county_id=data.county_id,
             animation_start_time=int(time.time() * 1000),
         )
+        state[self.rooms[sid]].select_county_event = broadcast_data.model_dump()
+        return broadcast_data
 
 def configure_v1_namespace():
     logger.info("Configured V1 namespace")

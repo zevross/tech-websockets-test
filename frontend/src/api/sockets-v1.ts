@@ -1,6 +1,5 @@
 /* AUTO-GENERATED - do not edit */
 import { io, Socket } from "socket.io-client";
-import { z } from "zod";
 import * as schemas from "./schemas";
 
 export class SocketClientV1 {
@@ -38,14 +37,32 @@ export class SocketClientV1 {
     this.socket.on("connect_error", handler);
   }
 
+  /** client → server 'arc_width_update' */
+  public emitArcWidthUpdate(payload: schemas.ArcWidthUpdatePayload): void {
+    this.socket.emit("arc_width_update", payload);
+  }
+
+  /** server → client 'arc_width_update' */
+  public onArcWidthUpdate(
+    handler: (payload: schemas.ArcWidthUpdatePayload) => void
+  ): void {
+    this.socket.on("arc_width_update", (raw: unknown) => {
+      try {
+        handler(schemas.ArcWidthUpdatePayload.parse(raw));
+      } catch (e) {
+        console.error("Invalid payload for arc_width_update", e);
+      }
+    });
+  }
+
   /**
    * emits 'get_state' and waits for server ack payload
    */
-  public getState(): Promise<Record<string, unknown>> {
+  public getState(): Promise<schemas.GetStatePayload> {
     return new Promise((resolve, reject) => {
       this.socket.emit("get_state", (res: unknown) => {
         try {
-          const parsed = z.record(z.string(), z.unknown()).parse(res);
+          const parsed = schemas.GetStatePayload.parse(res);
           resolve(parsed);
         } catch (e) {
           reject(e);
@@ -55,10 +72,10 @@ export class SocketClientV1 {
   }
 
   /** server → client 'get_state' */
-  public onGetState(handler: (payload: Record<string, unknown>) => void): void {
+  public onGetState(handler: (payload: schemas.GetStatePayload) => void): void {
     this.socket.on("get_state", (raw: unknown) => {
       try {
-        handler(z.record(z.string(), z.unknown()).parse(raw));
+        handler(schemas.GetStatePayload.parse(raw));
       } catch (e) {
         console.error("Invalid payload for get_state", e);
       }
@@ -77,6 +94,24 @@ export class SocketClientV1 {
         handler();
       } catch (e) {
         console.error("Invalid payload for reset", e);
+      }
+    });
+  }
+
+  /** client → server 'select_county' */
+  public emitSelectCounty(payload: schemas.SelectCountyPayload): void {
+    this.socket.emit("select_county", payload);
+  }
+
+  /** server → client 'select_county' */
+  public onSelectCounty(
+    handler: (payload: schemas.SelectCountyBroadcastPayload) => void
+  ): void {
+    this.socket.on("select_county", (raw: unknown) => {
+      try {
+        handler(schemas.SelectCountyBroadcastPayload.parse(raw));
+      } catch (e) {
+        console.error("Invalid payload for select_county", e);
       }
     });
   }
@@ -113,24 +148,15 @@ export class SocketClientV1 {
     });
   }
 
-  /** server → client 'tick' */
-  public onTick(handler: (payload: schemas.TickPayload) => void): void {
-    this.socket.on("tick", (raw: unknown) => {
-      try {
-        handler(schemas.TickPayload.parse(raw));
-      } catch (e) {
-        console.error("Invalid payload for tick", e);
-      }
-    });
-  }
-
   /** client → server 'text_update' */
   public emitTextUpdate(payload: schemas.TextUpdatePayload): void {
     this.socket.emit("text_update", payload);
   }
 
   /** server → client 'text_update' */
-  public onTextUpdate(handler: (payload: schemas.TextUpdatePayload) => void): void {
+  public onTextUpdate(
+    handler: (payload: schemas.TextUpdatePayload) => void
+  ): void {
     this.socket.on("text_update", (raw: unknown) => {
       try {
         handler(schemas.TextUpdatePayload.parse(raw));
@@ -140,38 +166,13 @@ export class SocketClientV1 {
     });
   }
 
-  /** client → server 'arc_width_update' */
-  public emitArcWidthUpdate(payload: schemas.ArcWidthUpdatePayload): void {
-    this.socket.emit("arc_width_update", payload);
-  }
-
-  /** server → client 'arc_width_update' */
-  public onArcWidthUpdate(
-    handler: (payload: schemas.ArcWidthUpdatePayload) => void
-  ): void {
-    this.socket.on("arc_width_update", (raw: unknown) => {
+  /** server → client 'tick' */
+  public onTick(handler: (payload: schemas.TickPayload) => void): void {
+    this.socket.on("tick", (raw: unknown) => {
       try {
-        handler(schemas.ArcWidthUpdatePayload.parse(raw));
+        handler(schemas.TickPayload.parse(raw));
       } catch (e) {
-        console.error("Invalid payload for arc_width_update", e);
-      }
-    });
-  }
-
-  /** client → server 'select_county' */
-  public emitSelectCounty(payload: schemas.SelectCountyPayload): void {
-    this.socket.emit("select_county", payload);
-  }
-
-  /** server → client 'select_county' (broadcast) */
-  public onSelectCounty(
-    handler: (payload: schemas.SelectCountyBroadcastPayload) => void
-  ): void {
-    this.socket.on("select_county", (raw: unknown) => {
-      try {
-        handler(schemas.SelectCountyBroadcastPayload.parse(raw));
-      } catch (e) {
-        console.error("Invalid payload for select_county", e);
+        console.error("Invalid payload for tick", e);
       }
     });
   }

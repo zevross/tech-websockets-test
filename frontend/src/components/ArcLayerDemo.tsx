@@ -38,8 +38,8 @@ const INITIAL_VIEW_STATE: MapViewState = {
   latitude: 40.7,
   zoom: 3,
   maxZoom: 15,
-  pitch: 30,
-  bearing: 30,
+  pitch: 0,
+  bearing: 0,
 };
 
 const MAP_STYLE =
@@ -120,9 +120,22 @@ export const ArcLayerDemo = () => {
 
   // Fetch data
   useEffect(() => {
-    fetch(DATA_URL)
-      .then((resp) => resp.json())
-      .then((data) => setData(data.features));
+    fetch(DATA_URL).then(async (resp) => {
+      const [data, serverState] = await Promise.all([
+        resp.json(),
+        socket.getState(),
+      ]);
+      setData(data.features);
+      const { select_county_event } = serverState;
+      if (select_county_event) {
+        selectCounty(
+          data.features.find(
+            (f) => f.properties.name === select_county_event.county_id
+          )
+        );
+        setServerAnimationStartTime(select_county_event.animation_start_time);
+      }
+    });
   }, []);
 
   // Socket connection and event handlers

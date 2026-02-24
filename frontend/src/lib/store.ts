@@ -11,12 +11,17 @@ type State = {
   timestamp: Date | null;
 };
 
-type ParseState = State & { timestamp: string };
-
 const initialState: State = {
   status: "stopped",
   timestamp: new Date(Date.parse("2022-11-01T00:00:00.000Z")),
 };
+
+function applyStatePayload(setState: (s: Partial<State>) => void, state: { status: string; timestamp: string }) {
+  setState({
+    status: state.status as Status,
+    timestamp: new Date(Date.parse(state.timestamp)),
+  });
+}
 
 export const useStore = create(
   combine(initialState, (setState, _getState) => {
@@ -26,15 +31,14 @@ export const useStore = create(
     socket.onStop(() => setState({ status: "stopped" }));
     socket.onStart(() => setState({ status: "running" }));
     socket.onReset(async () => {
-      const state = await socket.getState() as unknown as ParseState;
-      setState({...state, timestamp: new Date(Date.parse(state.timestamp))});
+      const state = await socket.getState();
+      applyStatePayload(setState, state);
     });
 
     return {
       loadState: async () => {
-        const state = await socket.getState() as unknown as ParseState;
-
-        setState({...state, timestamp: new Date(Date.parse(state.timestamp))});
+        const state = await socket.getState();
+        applyStatePayload(setState, state);
       },
       start: () => socket.emitStart(),
       stop: () => socket.emitStop(),

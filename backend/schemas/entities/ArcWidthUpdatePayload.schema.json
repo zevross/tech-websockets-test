@@ -5,7 +5,9 @@
       "type": "number"
     }
   },
-  "required": ["arc_width"],
+  "required": [
+    "arc_width"
+  ],
   "title": "ArcWidthUpdatePayload",
   "type": "object"
 }

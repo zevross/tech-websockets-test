@@ -11,6 +11,43 @@
     }
   },
   "channels": {
+    "arc_width_update": {
+      "address": "arc_width_update",
+      "messages": {
+        "receive": {
+          "contentType": "application/json",
+          "payload": {
+            "properties": {
+              "arc_width": {
+                "title": "Arc Width",
+                "type": "number"
+              }
+            },
+            "required": [
+              "arc_width"
+            ],
+            "title": "ArcWidthUpdatePayload",
+            "type": "object"
+          }
+        },
+        "send": {
+          "contentType": "application/json",
+          "payload": {
+            "properties": {
+              "arc_width": {
+                "title": "Arc Width",
+                "type": "number"
+              }
+            },
+            "required": [
+              "arc_width"
+            ],
+            "title": "ArcWidthUpdatePayload",
+            "type": "object"
+          }
+        }
+      }
+    },
     "get_state": {
       "address": "get_state",
       "messages": {
@@ -18,6 +55,63 @@
         "send": {
           "contentType": "application/json",
           "payload": {
+            "$defs": {
+              "SelectCountyBroadcastPayload": {
+                "properties": {
+                  "county_id": {
+                    "title": "County Id",
+                    "type": "string"
+                  },
+                  "animation_start_time": {
+                    "title": "Animation Start Time",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "county_id",
+                  "animation_start_time"
+                ],
+                "title": "SelectCountyBroadcastPayload",
+                "type": "object"
+              }
+            },
+            "description": "Server response for get_state (ack). Matches State.to_dict() shape.",
+            "properties": {
+              "status": {
+                "title": "Status",
+                "type": "string"
+              },
+              "timestamp": {
+                "title": "Timestamp",
+                "type": "string"
+              },
+              "text": {
+                "title": "Text",
+                "type": "string"
+              },
+              "arc_width": {
+                "title": "Arc Width",
+                "type": "number"
+              },
+              "select_county_event": {
+                "anyOf": [
+                  {
+                    "$ref": "#/channels/get_state/messages/send/payload/$defs/SelectCountyBroadcastPayload"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": [
+              "status",
+              "timestamp",
+              "text",
+              "arc_width"
+            ],
+            "title": "GetStatePayload",
             "type": "object"
           }
         }
@@ -28,6 +122,48 @@
       "messages": {
         "receive": {},
         "send": {}
+      }
+    },
+    "select_county": {
+      "address": "select_county",
+      "messages": {
+        "receive": {
+          "contentType": "application/json",
+          "payload": {
+            "properties": {
+              "county_id": {
+                "title": "County Id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "county_id"
+            ],
+            "title": "SelectCountyPayload",
+            "type": "object"
+          }
+        },
+        "send": {
+          "contentType": "application/json",
+          "payload": {
+            "properties": {
+              "county_id": {
+                "title": "County Id",
+                "type": "string"
+              },
+              "animation_start_time": {
+                "title": "Animation Start Time",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "county_id",
+              "animation_start_time"
+            ],
+            "title": "SelectCountyBroadcastPayload",
+            "type": "object"
+          }
+        }
       }
     },
     "start": {
@@ -81,43 +217,6 @@
         }
       }
     },
-    "arc_width_update": {
-      "address": "arc_width_update",
-      "messages": {
-        "receive": {
-          "contentType": "application/json",
-          "payload": {
-            "properties": {
-              "arc_width": {
-                "title": "Arc Width",
-                "type": "number"
-              }
-            },
-            "required": [
-              "arc_width"
-            ],
-            "title": "ArcWidthUpdatePayload",
-            "type": "object"
-          }
-        },
-        "send": {
-          "contentType": "application/json",
-          "payload": {
-            "properties": {
-              "arc_width": {
-                "title": "Arc Width",
-                "type": "number"
-              }
-            },
-            "required": [
-              "arc_width"
-            ],
-            "title": "ArcWidthUpdatePayload",
-            "type": "object"
-          }
-        }
-      }
-    },
     "tick": {
       "address": "tick",
       "messages": {
@@ -141,6 +240,28 @@
     }
   },
   "operations": {
+    "arc_width_update.receive": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/arc_width_update"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/arc_width_update/messages/receive"
+        }
+      ]
+    },
+    "arc_width_update.send": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/arc_width_update"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/arc_width_update/messages/send"
+        }
+      ]
+    },
     "get_state.receive": {
       "action": "receive",
       "channel": {
@@ -187,6 +308,28 @@
       "messages": [
         {
           "$ref": "#/channels/reset/messages/send"
+        }
+      ]
+    },
+    "select_county.receive": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/select_county"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/select_county/messages/receive"
+        }
+      ]
+    },
+    "select_county.send": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/select_county"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/select_county/messages/send"
         }
       ]
     },
@@ -253,28 +396,6 @@
       "messages": [
         {
           "$ref": "#/channels/text_update/messages/send"
-        }
-      ]
-    },
-    "arc_width_update.receive": {
-      "action": "receive",
-      "channel": {
-        "$ref": "#/channels/arc_width_update"
-      },
-      "messages": [
-        {
-          "$ref": "#/channels/arc_width_update/messages/receive"
-        }
-      ]
-    },
-    "arc_width_update.send": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/arc_width_update"
-      },
-      "messages": [
-        {
-          "$ref": "#/channels/arc_width_update/messages/send"
         }
       ]
     },

@@ -1,0 +1,60 @@
+{
+  "$defs": {
+    "SelectCountyBroadcastPayload": {
+      "properties": {
+        "county_id": {
+          "title": "County Id",
+          "type": "string"
+        },
+        "animation_start_time": {
+          "title": "Animation Start Time",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "county_id",
+        "animation_start_time"
+      ],
+      "title": "SelectCountyBroadcastPayload",
+      "type": "object"
+    }
+  },
+  "description": "Server response for get_state (ack). Matches State.to_dict() shape.",
+  "properties": {
+    "status": {
+      "title": "Status",
+      "type": "string"
+    },
+    "timestamp": {
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "arc_width": {
+      "title": "Arc Width",
+      "type": "number"
+    },
+    "select_county_event": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SelectCountyBroadcastPayload"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "status",
+    "timestamp",
+    "text",
+    "arc_width"
+  ],
+  "title": "GetStatePayload",
+  "type": "object"
+}

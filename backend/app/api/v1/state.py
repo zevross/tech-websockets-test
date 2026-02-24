@@ -3,6 +3,7 @@ import asyncio
 import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import TypedDict
 
 
 class Interval:
@@ -22,6 +23,9 @@ class Interval:
     def cancel(self):
         self.stopEvent.set()
 
+class SelectCountyEvent(TypedDict):
+    county_id: str
+    animation_start_time: int
 
 @dataclass
 class State:
@@ -31,6 +35,7 @@ class State:
     timestamp: datetime = None
     text: str = ""
     arc_width: float = 1.0
+    select_county_event: SelectCountyEvent | None = None
 
     async def on_tick(self, emitter):
         self.tick += 1
@@ -50,6 +55,7 @@ class State:
             "timestamp": self.timestamp.isoformat(),
             "text": self.text,
             "arc_width": self.arc_width,
+            "select_county_event": self.select_county_event,
         }
 
 

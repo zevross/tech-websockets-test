@@ -68,7 +68,7 @@ def _schema_of(t: Optional[Union[Type[BaseModel], Type, UnionType]], base_path: 
             "enum": list(values),
         }
     if inspect.isclass(t) and issubclass(t, BaseModel):
-        return t.model_json_schema(ref_template=f"{base_path or "#/$defs"}/")
+        return t.model_json_schema(ref_template=f"{base_path or '#/$defs'}/{{model}}")
     if t is int:
         return {"type": "integer"}
     if t is str:

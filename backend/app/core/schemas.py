@@ -37,6 +37,16 @@ class SelectCountyBroadcastPayload(BaseModel):
     animation_start_time: int
 
 
+class GetStatePayload(BaseModel):
+    """Server response for get_state (ack). Matches State.to_dict() shape."""
+
+    status: str
+    timestamp: str
+    text: str
+    arc_width: float
+    select_county_event: Optional[SelectCountyBroadcastPayload] = None
+
+
 class OrmConfig(ConfigDict):
     from_attributes: bool
 

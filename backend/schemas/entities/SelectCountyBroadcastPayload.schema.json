@@ -1,0 +1,18 @@
+{
+  "properties": {
+    "county_id": {
+      "title": "County Id",
+      "type": "string"
+    },
+    "animation_start_time": {
+      "title": "Animation Start Time",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "county_id",
+    "animation_start_time"
+  ],
+  "title": "SelectCountyBroadcastPayload",
+  "type": "object"
+}
