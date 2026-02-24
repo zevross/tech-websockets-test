@@ -28,6 +28,15 @@ class ArcWidthUpdatePayload(BaseModel):
     arc_width: float
 
 
+class SelectCountyPayload(BaseModel):
+    county_id: str
+
+
+class SelectCountyBroadcastPayload(BaseModel):
+    county_id: str
+    animation_start_time: int
+
+
 class OrmConfig(ConfigDict):
     from_attributes: bool
 

@@ -157,6 +157,24 @@ export class SocketClientV1 {
       }
     });
   }
+
+  /** client → server 'select_county' */
+  public emitSelectCounty(payload: schemas.SelectCountyPayload): void {
+    this.socket.emit("select_county", payload);
+  }
+
+  /** server → client 'select_county' (broadcast) */
+  public onSelectCounty(
+    handler: (payload: schemas.SelectCountyBroadcastPayload) => void
+  ): void {
+    this.socket.on("select_county", (raw: unknown) => {
+      try {
+        handler(schemas.SelectCountyBroadcastPayload.parse(raw));
+      } catch (e) {
+        console.error("Invalid payload for select_county", e);
+      }
+    });
+  }
 }
 
 export function createSocketClient(

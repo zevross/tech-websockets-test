@@ -62,6 +62,8 @@ type MigrationFlow = {
   /** Number of migrants */
   value: number;
   quantile: number;
+  /** Index for staggered reveal animation */
+  index: number;
 };
 
 function calculateArcs(data: County[] | undefined, selectedCounty?: County) {
@@ -69,23 +71,25 @@ function calculateArcs(data: County[] | undefined, selectedCounty?: County) {
     return null;
   }
   if (!selectedCounty) {
-    selectedCounty = data.find((f) => f.properties.name === "Los Angeles, CA")!;
+    // selectedCounty = data.find((f) => f.properties.name === "Los Angeles, CA")!;
+    return null;
   }
   const { flows } = selectedCounty.properties;
 
-  const arcs: MigrationFlow[] = Object.keys(flows).map((toId) => {
+  const arcs: MigrationFlow[] = Object.keys(flows).map((toId, index) => {
     const f = data[Number(toId)];
     return {
       source: selectedCounty,
       target: f,
       value: flows[toId],
       quantile: 0,
+      index,
     };
   });
 
   const scale = scaleQuantile()
     .domain(arcs.map((a) => Math.abs(a.value)))
-    .range(inFlowColors.map((c, i) => i));
+    .range(inFlowColors.map((_, i) => i));
 
   arcs.forEach((a) => {
     a.quantile = scale(Math.abs(a.value));
@@ -107,6 +111,12 @@ export const ArcLayerDemo = () => {
   const [selectedCounty, selectCounty] = useState<County>();
   const [arcWidth, setArcWidth] = useState(DEFAULT_STROKE_WIDTH);
   const [data, setData] = useState<County[]>([]);
+  /** Number of arcs to show; animates from 0 to arcs.length for staggered reveal */
+  const [visibleArcCount, setVisibleArcCount] = useState(0);
+  /** Server-provided animation start time (ms); used so all clients stay in sync */
+  const [serverAnimationStartTime, setServerAnimationStartTime] = useState<
+    number | null
+  >(null);
 
   // Fetch data
   useEffect(() => {
@@ -118,6 +128,13 @@ export const ArcLayerDemo = () => {
   // Socket connection and event handlers
   useEffect(() => {
     socket.onArcWidthUpdate((payload) => setArcWidth(payload.arc_width));
+    socket.onSelectCounty((payload) => {
+      const county = data.find((f) => f.properties.name === payload.county_id);
+      if (county) {
+        selectCounty(county);
+        setServerAnimationStartTime(payload.animation_start_time);
+      }
+    });
     socket.onConnect(() => {
       socket.getState().then((state) => {
         if (typeof state.arc_width === "number") setArcWidth(state.arc_width);
@@ -134,7 +151,7 @@ export const ArcLayerDemo = () => {
 
     socket.connect();
     return () => void socket.disconnect();
-  }, []);
+  }, [data]);
 
   const handleArcWidthChange = (value: number) => {
     setArcWidth(value);
@@ -146,6 +163,32 @@ export const ArcLayerDemo = () => {
     [data, selectedCounty]
   );
 
+  useEffect(() => {
+    if (!arcs || arcs.length === 0) {
+      setVisibleArcCount(0);
+      return;
+    }
+    const startTime = serverAnimationStartTime ?? Date.now();
+    const total = arcs.length;
+
+    let rafId: number;
+    const tick = () => {
+      rafId = requestAnimationFrame(tick);
+      const elapsed = Date.now() - startTime;
+      const count = clamp(Math.floor(elapsed / 50), 0, total);
+      setVisibleArcCount(count);
+      if (count >= total) cancelAnimationFrame(rafId);
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [arcs, serverAnimationStartTime]);
+
+  // Only pass arcs that should be visible so the layer actually draws them
+  const visibleArcs = useMemo(() => {
+    return arcs && visibleArcCount > 0 ? arcs.slice(0, visibleArcCount) : [];
+  }, [arcs, visibleArcCount]);
+
   const layers = [
     new GeoJsonLayer<CountyProperties>({
       id: "geojson",
@@ -153,18 +196,24 @@ export const ArcLayerDemo = () => {
       stroked: false,
       filled: true,
       getFillColor: [0, 0, 0, 0],
-      onClick: ({ object }) => selectCounty(object),
+      onClick: ({ object }) => {
+        socket.emitSelectCounty({ county_id: object.properties.name });
+      },
       pickable: true,
     }),
     new ArcLayer<MigrationFlow>({
       id: "arc",
-      data: arcs,
+      data: visibleArcs,
       getSourcePosition: (d) => d.source.properties.centroid,
       getTargetPosition: (d) => d.target.properties.centroid,
-      getSourceColor: (d) =>
-        (d.value > 0 ? inFlowColors : outFlowColors)[d.quantile],
-      getTargetColor: (d) =>
-        (d.value > 0 ? outFlowColors : inFlowColors)[d.quantile],
+      getSourceColor: (d) => {
+        const c = (d.value > 0 ? inFlowColors : outFlowColors)[d.quantile];
+        return [c[0], c[1], c[2], 255];
+      },
+      getTargetColor: (d) => {
+        const c = (d.value > 0 ? outFlowColors : inFlowColors)[d.quantile];
+        return [c[0], c[1], c[2], 255];
+      },
       getWidth: arcWidth,
     }),
   ];
@@ -200,3 +249,7 @@ export const ArcLayerDemo = () => {
     </div>
   );
 };
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(value, max));
+}

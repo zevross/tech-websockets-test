@@ -14,3 +14,12 @@ export const TextUpdatePayload = z.object({ text: z.string() });
 export type TextUpdatePayload = z.infer<typeof TextUpdatePayload>;
 export const TickPayload = z.object({ timestamp: z.string() });
 export type TickPayload = z.infer<typeof TickPayload>;
+export const SelectCountyPayload = z.object({ county_id: z.string() });
+export type SelectCountyPayload = z.infer<typeof SelectCountyPayload>;
+export const SelectCountyBroadcastPayload = z.object({
+  county_id: z.string(),
+  animation_start_time: z.number(),
+});
+export type SelectCountyBroadcastPayload = z.infer<
+  typeof SelectCountyBroadcastPayload
+>;

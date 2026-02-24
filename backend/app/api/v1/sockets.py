@@ -1,3 +1,4 @@
+import time
 from urllib.parse import parse_qs
 from datetime import datetime, timezone
 
@@ -83,6 +84,17 @@ class SocketV1Namespace(socketio.AsyncNamespace):
         state[self.rooms[sid]].arc_width = data.arc_width
         return data
 
+    @socket_event(
+        "select_county",
+        payload=schemas.SelectCountyPayload,
+        response=schemas.SelectCountyBroadcastPayload,
+        response_event="select_county",
+    )
+    async def on_select_county(self, sid: str, data: schemas.SelectCountyPayload):
+        return schemas.SelectCountyBroadcastPayload(
+            county_id=data.county_id,
+            animation_start_time=int(time.time() * 1000),
+        )
 
 def configure_v1_namespace():
     logger.info("Configured V1 namespace")
