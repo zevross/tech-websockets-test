@@ -1,7 +1,7 @@
 import type { RootRoute } from "@tanstack/react-router";
 import { createRoute } from "@tanstack/react-router";
 
-import { ArcLayerDemo } from "@/components/ArcLayerDemo";
+import { LeafletArcDemo } from "@/components/LeafletArcDemo";
 // import { SimpleDemo } from "@/components/SimpleDemo";
 
 const COLUMN_WIDTH = 100 / 16;
@@ -19,7 +19,7 @@ export const IndexPage = () => {
         <h1 className="text-white">Section A</h1>
       </div>
       <div className="min-w-0 flex-1">
-        <ArcLayerDemo />
+        <LeafletArcDemo />
       </div>
       <div
         className="flex h-full items-center justify-center bg-green-500"
