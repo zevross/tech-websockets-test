@@ -2,11 +2,12 @@ import type { Color } from "@deck.gl/core";
 import { scaleQuantile } from "d3-scale";
 import type * as GeoJSONNamespace from "geojson";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
-import type { Layer, LatLngTuple } from "leaflet";
+import type { LatLngTuple, Layer } from "leaflet";
 import { useEffect, useMemo, useState } from "react";
 import { GeoJSON, MapContainer, Polyline, TileLayer } from "react-leaflet";
 
 import { socket } from "@/lib/sockets";
+import { ArcWidthSlider } from "./ui/arc-width-slider";
 
 import "leaflet/dist/leaflet.css";
 
@@ -193,7 +194,7 @@ export const LeafletArcDemo = () => {
     <div className="relative h-full w-full">
       <MapContainer
         center={INITIAL_CENTER}
-        zoom={4}
+        zoom={6}
         className="h-full w-full"
         style={{ background: "#080929" }}
       >
@@ -210,10 +211,9 @@ export const LeafletArcDemo = () => {
               opacity: 0,
               fillOpacity: 0,
             })}
-            onEachFeature={(
-              feature: GeoJSONNamespace.Feature,
-              layer: Layer
-            ) => handleCountyFeature(feature as County, layer)}
+            onEachFeature={(feature: GeoJSONNamespace.Feature, layer: Layer) =>
+              handleCountyFeature(feature as County, layer)
+            }
           />
         )}
 
@@ -243,24 +243,15 @@ export const LeafletArcDemo = () => {
         })}
       </MapContainer>
 
-      <div className="absolute bottom-10 left-4 rounded-lg border border-gray-600 bg-gray-800/90 px-4 py-3 shadow-lg backdrop-blur-sm">
-        <label
-          htmlFor="leaflet-arc-width-slider"
-          className="mb-2 block text-sm font-medium text-gray-200"
-        >
-          Arc width: {arcWidth.toFixed(1)}px
-        </label>
-        <input
-          id="leaflet-arc-width-slider"
-          type="range"
-          min={ARC_WIDTH_MIN}
-          max={ARC_WIDTH_MAX}
-          step={ARC_WIDTH_STEP}
-          value={arcWidth}
-          onChange={(e) => handleArcWidthChange(Number(e.target.value))}
-          className="h-2 w-40 cursor-pointer appearance-none rounded-lg bg-gray-600 accent-blue-500"
-        />
-      </div>
+      <ArcWidthSlider
+        value={arcWidth}
+        min={ARC_WIDTH_MIN}
+        max={ARC_WIDTH_MAX}
+        step={ARC_WIDTH_STEP}
+        onChange={handleArcWidthChange}
+        id="leaflet-arc-width-slider"
+        className="absolute bottom-10 left-4 z-1000"
+      />
     </div>
   );
 };
