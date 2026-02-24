@@ -18,11 +18,11 @@ export const IndexPage = () => {
       >
         <h1 className="text-white">Section A</h1>
       </div>
-      <div className="w-full flex-1">
+      <div className="min-w-0 flex-1">
         <ArcLayerDemo />
       </div>
       <div
-        className="flex h-full items-center justify-center bg-blue-500"
+        className="flex h-full items-center justify-center bg-green-500"
         style={{ width: `${RIGHT_COLUMN_WIDTH}%` }}
       >
         <h1 className="text-white">Section B</h1>

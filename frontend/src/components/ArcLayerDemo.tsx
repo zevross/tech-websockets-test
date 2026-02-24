@@ -8,6 +8,7 @@ import { socket } from "@/lib/sockets";
 
 import type { Color, MapViewState, PickingInfo } from "@deck.gl/core";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
+import { ScaleContainer } from "./ui/scale-container";
 
 // Source data GeoJSON
 export const DATA_URL =
@@ -36,7 +37,7 @@ export const outFlowColors: Color[] = [
 const INITIAL_VIEW_STATE: MapViewState = {
   longitude: -100,
   latitude: 40.7,
-  zoom: 3,
+  zoom: 1.5,
   maxZoom: 15,
   pitch: 0,
   bearing: 0,
@@ -233,14 +234,25 @@ export const ArcLayerDemo = () => {
 
   return (
     <div className="relative h-full w-full">
-      <DeckGL
-        layers={layers}
-        initialViewState={INITIAL_VIEW_STATE}
-        controller={true}
-        getTooltip={getTooltip}
-      >
-        <Map reuseMaps mapStyle={MAP_STYLE} />
-      </DeckGL>
+      <ScaleContainer maxLongSide={2500}>
+        {({ ref, styles }) => (
+          <div
+            data-testid="deckgl-container"
+            ref={ref}
+            style={{ ...styles, position: "relative" }}
+          >
+            <DeckGL
+              layers={layers}
+              initialViewState={INITIAL_VIEW_STATE}
+              controller={true}
+              getTooltip={getTooltip}
+            >
+              <Map reuseMaps mapStyle={MAP_STYLE} />
+            </DeckGL>
+          </div>
+        )}
+      </ScaleContainer>
+
       <div className="absolute bottom-10 left-4 rounded-lg border border-gray-600 bg-gray-800/90 px-4 py-3 shadow-lg backdrop-blur-sm">
         <label
           htmlFor="arc-width-slider"
