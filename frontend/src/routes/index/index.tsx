@@ -16,7 +16,7 @@ export const IndexPage = () => {
         className="flex h-full items-center justify-center bg-red-500"
         style={{ width: `${LEFT_COLUMN_WIDTH}%` }}
       >
-        <h1 className="text-white">Section A</h1>
+        <h1 className="text-[clamp(18px,2vh,120px)] text-white">Section A</h1>
       </div>
       <div className="min-w-0 flex-1">
         <LeafletArcDemo />
@@ -25,7 +25,7 @@ export const IndexPage = () => {
         className="flex h-full items-center justify-center bg-green-500"
         style={{ width: `${RIGHT_COLUMN_WIDTH}%` }}
       >
-        <h1 className="text-white">Section B</h1>
+        <h1 className="text-[clamp(18px,2vh,120px)] text-white">Section B</h1>
       </div>
     </main>
   );
