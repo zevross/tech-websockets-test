@@ -85,7 +85,7 @@ function calculateArcs(data: County[] | undefined, selectedCounty?: County) {
 const ARC_WIDTH_MIN = 0.5;
 const ARC_WIDTH_MAX = 10;
 const ARC_WIDTH_STEP = 0.5;
-const DEFAULT_STROKE_WIDTH = 1;
+const DEFAULT_STROKE_WIDTH = 8;
 
 const INITIAL_CENTER: LatLngTuple = [40.7, -100];
 
@@ -226,13 +226,19 @@ export const LeafletArcDemo = () => {
           ];
           const color = `rgb(${colorArray[0]}, ${colorArray[1]}, ${colorArray[2]})`;
 
+          const curvePositions = makeCurve(
+            sourceLon,
+            sourceLat,
+            targetLon,
+            targetLat,
+            40,
+            0.3
+          );
+
           return (
             <Polyline
               key={arc.index}
-              positions={[
-                [sourceLat, sourceLon],
-                [targetLat, targetLon],
-              ]}
+              positions={curvePositions}
               pathOptions={{
                 color,
                 weight: arcWidth,
@@ -255,6 +261,48 @@ export const LeafletArcDemo = () => {
     </div>
   );
 };
+
+function makeCurve(
+  sx: number,
+  sy: number,
+  tx: number,
+  ty: number,
+  n = 40,
+  bend = 0.3
+): LatLngTuple[] {
+  if (sx === tx && sy === ty) {
+    return [
+      [sy, sx],
+      [ty, tx],
+    ];
+  }
+
+  const mx = (sx + tx) / 2;
+  const my = (sy + ty) / 2;
+
+  const dx = tx - sx;
+  const dy = ty - sy;
+  let d = Math.sqrt(dx * dx + dy * dy);
+  if (d === 0) d = 1;
+
+  const px = -dy / d;
+  const py = dx / d;
+
+  const h = bend * d;
+
+  const cx = mx + px * h;
+  const cy = my + py * h;
+
+  const points: LatLngTuple[] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const lon = (1 - t) * (1 - t) * sx + 2 * (1 - t) * t * cx + t * t * tx;
+    const lat = (1 - t) * (1 - t) * sy + 2 * (1 - t) * t * cy + t * t * ty;
+    points.push([lat, lon]);
+  }
+
+  return points;
+}
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(value, max));
